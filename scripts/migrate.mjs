@@ -7,7 +7,9 @@ if (!url) {
   process.exit(1);
 }
 try {
-  new URL(url);
+  // The same two parses as the driver (as given, then behind an `http:` scheme), which echoes the string if either fails.
+  const { protocol } = new URL(url);
+  new URL('http:' + url.slice(protocol.length));
 } catch {
   // Never print the value: a malformed URL (for example a pasted psql command) still contains the password.
   console.error('DATABASE_URL is not a valid connection URL.');

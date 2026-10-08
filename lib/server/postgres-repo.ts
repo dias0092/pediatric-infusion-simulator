@@ -32,10 +32,13 @@ const toBoardRow = (r: Row): LeaderboardRow => ({
 });
 
 export function createPostgresRepo(databaseUrl: string): ResultsRepo {
+  // The driver parses the URL twice (as given, then behind an `http:` scheme) and, if either parse fails, echoes the
+  // whole string, password included, on the first query. Run the same two parses here and throw a fresh Error without
+  // `cause` (the parser's own TypeError carries the raw string too), so the value never appears.
   try {
-    new URL(databaseUrl);
+    const { protocol } = new URL(databaseUrl);
+    new URL('http:' + databaseUrl.slice(protocol.length));
   } catch {
-    // A fresh Error without `cause`: the URL parser's TypeError and the driver's own error both carry the raw string, password included.
     throw new Error('DATABASE_URL is not a valid connection URL');
   }
   const sql = neon(databaseUrl);
