@@ -32,6 +32,12 @@ const toBoardRow = (r: Row): LeaderboardRow => ({
 });
 
 export function createPostgresRepo(databaseUrl: string): ResultsRepo {
+  try {
+    new URL(databaseUrl);
+  } catch {
+    // A fresh Error without `cause`: the URL parser's TypeError and the driver's own error both carry the raw string, password included.
+    throw new Error('DATABASE_URL is not a valid connection URL');
+  }
   const sql = neon(databaseUrl);
 
   return {
