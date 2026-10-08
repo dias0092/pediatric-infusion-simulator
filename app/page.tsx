@@ -1,3 +1,5 @@
-export default function Page() {
-  return <main className="p-4">Pediatric Infusion Simulator</main>;
+import { HomeScreen } from '@/components/screens/HomeScreen';
+
+export default function HomePage() {
+  return <HomeScreen />;
 }
