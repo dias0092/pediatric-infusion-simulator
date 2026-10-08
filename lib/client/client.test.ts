@@ -1,8 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { addHistory, HISTORY_LIMIT, readHistory, type HistoryItem } from './history';
 import { createOutbox, type ResultPayload } from './outbox';
 import { seededShuffle } from './shuffle';
-import { KEYS, memoryKV, readJson } from './storage';
+import { KEYS, localKV, memoryKV, readJson } from './storage';
 
 const payload = (id: string): ResultPayload => ({
   id,
@@ -20,6 +20,84 @@ describe('storage', () => {
     expect(readJson(kv, 'x', 42)).toBe(42);
     kv.set('x', '{broken');
     expect(readJson(kv, 'x', 42)).toBe(42);
+  });
+});
+
+describe('localKV', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('keeps values in memory when localStorage throws, so queued results still get sent', async () => {
+    vi.stubGlobal('window', {
+      localStorage: {
+        getItem: () => { throw new Error('SecurityError'); },
+        setItem: () => { throw new Error('QuotaExceededError'); },
+      },
+    });
+    localKV.set('k1', 'v');
+    expect(localKV.get('k1')).toBe('v');
+
+    const sender = vi.fn(async () => ({ status: 201 }));
+    const outbox = createOutbox(localKV, sender);
+    outbox.enqueue(payload('fallback-1'));
+    expect(await outbox.flush()).toEqual({ 'fallback-1': 'sent' });
+    expect(sender).toHaveBeenCalledTimes(1);
+    expect(outbox.pending()).toEqual([]);
+  });
+
+  it('falls back to memory when the localStorage getter itself throws', () => {
+    vi.stubGlobal('window', {
+      get localStorage(): Storage {
+        throw new Error('SecurityError');
+      },
+    });
+    localKV.set('k2', 'v');
+    expect(localKV.get('k2')).toBe('v');
+  });
+
+  it('reads and writes localStorage when it works', () => {
+    const store = new Map<string, string>();
+    vi.stubGlobal('window', {
+      localStorage: {
+        getItem: (key: string) => store.get(key) ?? null,
+        setItem: (key: string, value: string) => void store.set(key, value),
+      },
+    });
+    localKV.set('k3', 'v');
+    expect(store.get('k3')).toBe('v');
+    expect(localKV.get('k3')).toBe('v');
+  });
+
+  it('replaces a value kept in memory once localStorage works again', () => {
+    let broken = true;
+    const store = new Map<string, string>();
+    vi.stubGlobal('window', {
+      localStorage: {
+        getItem: (key: string) => {
+          if (broken) throw new Error('SecurityError');
+          return store.get(key) ?? null;
+        },
+        setItem: (key: string, value: string) => {
+          if (broken) throw new Error('QuotaExceededError');
+          store.set(key, value);
+        },
+      },
+    });
+    localKV.set('k4', 'old');
+    broken = false;
+    localKV.set('k4', 'new');
+    expect(store.get('k4')).toBe('new');
+    expect(localKV.get('k4')).toBe('new');
+  });
+
+  it('stores nothing on the server, where there is no window', () => {
+    expect(localKV.get('k5')).toBeNull();
+    expect(() => localKV.set('k5', 'v')).not.toThrow();
+    expect(localKV.get('k5')).toBeNull();
+    // A server-side write must not reach the in-memory fallback, or it would leak into later reads.
+    vi.stubGlobal('window', { localStorage: { getItem: () => null, setItem: () => {} } });
+    expect(localKV.get('k5')).toBeNull();
   });
 });
 

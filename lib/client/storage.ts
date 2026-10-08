@@ -3,20 +3,31 @@ export interface KV {
   set(key: string, value: string): void;
 }
 
-/** localStorage may be missing or throw (private mode, blocked site data); the app then just forgets. */
+/**
+ * Values that localStorage refused (blocked site data, private mode, quota exceeded). They last for this
+ * page session only, so the app keeps working and just forgets after a reload.
+ */
+const memory = new Map<string, string>();
+
+/** localStorage with an in-memory fallback (spec §9). The server stores nothing, so nothing leaks between requests. */
 export const localKV: KV = {
   get(key) {
+    if (typeof window === 'undefined') return null;
+    const kept = memory.get(key);
+    if (kept !== undefined) return kept;
     try {
-      return globalThis.localStorage?.getItem(key) ?? null;
+      return window.localStorage.getItem(key);
     } catch {
       return null;
     }
   },
   set(key, value) {
+    if (typeof window === 'undefined') return;
     try {
-      globalThis.localStorage?.setItem(key, value);
+      window.localStorage.setItem(key, value);
+      memory.delete(key);
     } catch {
-      // storage unavailable
+      memory.set(key, value);
     }
   },
 };
