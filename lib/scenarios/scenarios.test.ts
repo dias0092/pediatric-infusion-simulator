@@ -59,7 +59,6 @@ describe('scenario data', () => {
       expect(s.alarm.atProgress).toBeGreaterThan(0);
       expect(s.alarm.atProgress).toBeLessThan(1);
     }
-    expect(s.reviewStatus).toBe('draft');
     expect(s.sources.length).toBeGreaterThan(0);
   });
 

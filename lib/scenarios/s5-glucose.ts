@@ -4,7 +4,7 @@ import { RATE_UNITS, SOURCES } from './common';
 export const s5Glucose: Scenario = {
   id: 's5-glucose',
   number: 5,
-  title: { ru: 'Гипогликемия: глюкоза 20% через PICC', kk: 'Гипогликемия: PICC арқылы глюкоза 20%' },
+  title: { ru: 'Гипогликемия: глюкоза 20%', kk: 'Гипогликемия: глюкоза 20%' },
   reviewStatus: 'draft',
   patient: {
     code: '№005',
