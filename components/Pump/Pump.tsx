@@ -67,10 +67,10 @@ export function Pump({ state, drugLabel, progress, onPress }: PumpProps) {
           {state.onMains ? '🔌' : '🔋'}
         </span>
       </div>
-      <div className={`pump-screen tone-${screen.tone}`} aria-live="polite">
+      <div className={`pump-screen tone-${screen.tone}`}>
         {screen.tone !== 'off' && (
           <>
-            <div className="pump-screen-header">{screen.header}</div>
+            <div className="pump-screen-header" aria-live="polite">{screen.header}</div>
             {screen.lines.map((line) => (
               <Line key={line.label} line={line} />
             ))}
