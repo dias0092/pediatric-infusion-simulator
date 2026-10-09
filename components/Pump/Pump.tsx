@@ -79,18 +79,23 @@ export function Pump({ state, drugLabel, progress, onPress }: PumpProps) {
         )}
       </div>
       <div className="pump-keys">
-        {KEY_ORDER.map((button) => (
-          <button
-            key={button}
-            type="button"
-            aria-label={button}
-            className={`pump-key ${KEY_CLASS[button] ?? ''}`}
-            disabled={!onPress || selfTest}
-            onClick={() => onPress?.(button)}
-          >
-            {KEY_TEXT[button]}
-          </button>
-        ))}
+        {KEY_ORDER.map((button) => {
+          // During an alarm the MUTE key shows whether the alarm sound is on (🔔) or off (🔕).
+          const muteState = button === 'MUTE' && state.alarm ? (state.alarm.muted ? 'muted' : 'sounding') : null;
+          return (
+            <button
+              key={button}
+              type="button"
+              aria-label={button}
+              aria-pressed={button === 'MUTE' ? muteState === 'muted' : undefined}
+              className={`pump-key ${KEY_CLASS[button] ?? ''} ${muteState ? `key-${muteState}` : ''}`}
+              disabled={!onPress || selfTest}
+              onClick={() => onPress?.(button)}
+            >
+              {muteState === 'sounding' ? '🔔' : KEY_TEXT[button]}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

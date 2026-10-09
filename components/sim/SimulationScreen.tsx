@@ -246,6 +246,7 @@ function SimulationRun({ scenario, mode, nickname, title, back, onRetry }: RunPr
               progress={progress}
               onPress={session.finished ? undefined : press}
               onChecklist={() => send({ type: 'checklistCompleted' })}
+              soundOn={soundOn}
             />
             {session.alarm?.autoResolved && (
               <p className="rounded-lg bg-amber-50 p-3 text-sm" role="status">

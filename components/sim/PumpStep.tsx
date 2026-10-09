@@ -14,9 +14,11 @@ interface PumpStepProps {
   progress: number;
   onPress?: (button: PumpButton) => void;
   onChecklist: () => void;
+  /** The app-wide sound setting (separate from the pump's MUTE). */
+  soundOn: boolean;
 }
 
-export function PumpStep({ session, progress, onPress, onChecklist }: PumpStepProps) {
+export function PumpStep({ session, progress, onPress, onChecklist, soundOn }: PumpStepProps) {
   const { d } = useI18n();
   const { scenario, mode, pump, step, expected } = session;
   const drug = scenario.drugOptions.find((o) => o.id === session.drug.selectedId) ?? null;
@@ -27,6 +29,15 @@ export function PumpStep({ session, progress, onPress, onChecklist }: PumpStepPr
       <DripLine progress={progress} running={pump.status === 'running'} rateMlH={pump.rateTenths / 10} />
       <p className="text-center text-xs text-[var(--muted)]">{d.infusion.schemeNote}</p>
       <Pump state={pump} drugLabel={drug?.pumpLabel ?? null} progress={progress} onPress={onPress} />
+      {pump.alarm && (
+        <p
+          className={`rounded-lg p-3 text-sm ${pump.alarm.muted ? 'bg-amber-50 text-[var(--warn)]' : 'bg-red-50 text-[var(--bad)]'}`}
+          role="status"
+        >
+          {pump.alarm.muted ? `🔕 ${d.infusion.alarmSoundOff}` : `🔔 ${d.infusion.alarmSoundOn}`}
+          {!soundOn && ` ${d.infusion.appSoundOff}`}
+        </p>
+      )}
       {pump.status === 'limitWarning' && (
         <p className="rounded-lg bg-amber-50 p-3 text-sm text-[var(--warn)]" role="alert">
           ⚠ {d.infusion.limitWarning}

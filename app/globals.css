@@ -79,6 +79,8 @@ body {
   .key-start { border-color: #15803d; background: linear-gradient(180deg, #16a34a, #15803d); box-shadow: 0 2px 0 #15803d; }
   .key-stop { border-color: #b91c1c; background: linear-gradient(180deg, #dc2626, #b91c1c); box-shadow: 0 2px 0 #b91c1c; }
   .key-power { color: var(--brand); }
+  .key-sounding { border-color: #b91c1c; box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.3); }
+  .key-muted { border-color: #b45309; background: linear-gradient(180deg, #fde68a, #f59e0b); box-shadow: 0 2px 0 #b45309; }
 
   /* Drip line */
   .drip { display: block; width: 100%; max-width: 420px; height: auto; margin: 0 auto; }
