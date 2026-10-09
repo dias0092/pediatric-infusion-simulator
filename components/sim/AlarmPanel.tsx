@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { seededShuffle } from '@/lib/client/shuffle';
 import { nextAlarmStep, type Session } from '@/lib/engine/session';
 import { useI18n } from '../I18nProvider';
@@ -10,6 +10,14 @@ export function AlarmPanel({ session, onAction }: { session: Session; onAction: 
   const { scenario, mode, alarm } = session;
   const spec = scenario.alarm;
   const actions = useMemo(() => (spec ? seededShuffle(spec.actions, `${scenario.id}:alarm`) : []), [spec, scenario.id]);
+  const ref = useRef<HTMLElement>(null);
+  const active = !!spec && !!alarm && !alarm.resolved;
+
+  // Testers looked for the fix on the drawing; bring the action list into view when the alarm starts.
+  useEffect(() => {
+    if (active) ref.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [active]);
+
   if (!spec || !alarm || alarm.resolved) return null;
 
   const next = mode === 'learning' ? nextAlarmStep(session) : null;
@@ -17,7 +25,7 @@ export function AlarmPanel({ session, onAction }: { session: Session; onAction: 
   const hint = next === 'START' ? d.infusion.restartHint : spec.actions.find((a) => a.id === next);
 
   return (
-    <section className="card space-y-2 border-[var(--bad)]" aria-live="assertive">
+    <section ref={ref} className="card alarm-panel space-y-2 border-2 border-[var(--bad)]" aria-live="assertive">
       <h3 className="font-semibold text-[var(--bad)]">🚨 {d.infusion.alarmTitle}</h3>
       {actions.map((a) => {
         const done = alarm.performed.includes(a.id);

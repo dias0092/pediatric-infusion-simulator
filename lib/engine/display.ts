@@ -45,6 +45,10 @@ function alarmHeader(s: PumpState): string {
   return s.alarm?.type === 'airInLine' ? '⛔ AIR IN LINE' : '⛔ OCCLUSION';
 }
 
+const mutedMark = (s: PumpState): string => (s.alarm?.muted ? ' 🔕' : '');
+
+const muteFooter = (s: PumpState): string => (s.alarm?.muted ? 'MUTE = SOUND ON' : 'MUTE = SILENCE');
+
 export function pumpScreen(s: PumpState, drugLabel: string | null, progress: number): PumpScreen {
   const drug = drugLabel ?? 'NO DRUG LIBRARY';
   const rate = formatTenths(s.rateTenths, FIELD_DIGITS.rate);
@@ -94,16 +98,16 @@ export function pumpScreen(s: PumpState, drugLabel: string | null, progress: num
       };
     case 'running':
       return s.alarm?.type === 'lowBattery'
-        ? { tone: 'warn', header: '⚠ LOW BATTERY 10%', lines: runLines, footer: 'MUTE = SILENCE' }
+        ? { tone: 'warn', header: `⚠ LOW BATTERY 10%${mutedMark(s)}`, lines: runLines, footer: muteFooter(s) }
         : { tone: 'normal', header: `▶▶ ${drug}`, lines: runLines, footer: 'STOP = PAUSE' };
     case 'paused':
       return { tone: 'warn', header: 'PAUSED', lines: runLines, footer: 'START = CONTINUE' };
     case 'alarmStopped':
       return {
         tone: 'alarm',
-        header: alarmHeader(s),
+        header: alarmHeader(s) + mutedMark(s),
         lines: runLines,
-        footer: s.alarm?.fixed ? 'START = RESTART' : 'MUTE = SILENCE',
+        footer: s.alarm?.fixed ? 'START = RESTART' : muteFooter(s),
       };
     case 'complete':
       return {

@@ -25,6 +25,7 @@ export function PumpStep({ session, progress, onPress, onChecklist }: PumpStepPr
     <section className="space-y-3">
       <h2 className="font-semibold">{step === 'pump' ? d.steps.pump : d.steps.infusion}</h2>
       <DripLine progress={progress} running={pump.status === 'running'} rateMlH={pump.rateTenths / 10} />
+      <p className="text-center text-xs text-[var(--muted)]">{d.infusion.schemeNote}</p>
       <Pump state={pump} drugLabel={drug?.pumpLabel ?? null} progress={progress} onPress={onPress} />
       {pump.status === 'limitWarning' && (
         <p className="rounded-lg bg-amber-50 p-3 text-sm text-[var(--warn)]" role="alert">

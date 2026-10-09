@@ -62,9 +62,14 @@ export const s3SalineBolus: Scenario = {
     type: 'airInLine',
     atProgress: 0.5,
     actions: [
+      // Ids stay "clamp_line"/"unclamp_line" so stored event logs keep replaying;
+      // on a volumetric pump opening the door closes the line automatically.
       {
         id: 'clamp_line',
-        label: { ru: 'Перекрыть зажим линии к пациенту', kk: 'Науқасқа баратын желінің қысқышын жабу' },
+        label: {
+          ru: 'Открыть дверцу насоса — линия перекроется автоматически',
+          kk: 'Сорғының есігін ашу — желі автоматты түрде жабылады',
+        },
       },
       {
         id: 'remove_air',
@@ -73,7 +78,7 @@ export const s3SalineBolus: Scenario = {
           kk: 'Сорғы нұсқаулығы бойынша желіден ауаны шығару',
         },
       },
-      { id: 'unclamp_line', label: { ru: 'Открыть зажим', kk: 'Қысқышты ашу' } },
+      { id: 'unclamp_line', label: { ru: 'Закрыть дверцу насоса', kk: 'Сорғының есігін жабу' } },
       { id: 'disable_sensor', label: { ru: 'Отключить датчик воздуха', kk: 'Ауа датчигін өшіру' } },
       {
         id: 'flush_bubble',

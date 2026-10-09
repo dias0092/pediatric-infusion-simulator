@@ -89,12 +89,16 @@ body {
   .drip-tube { fill: none; stroke: #94a3b8; stroke-width: 3; }
   .drip-flow { fill: none; stroke: #3b82f6; stroke-width: 3; stroke-dasharray: 6 10; opacity: 0; }
   .drip-flow.is-running { opacity: 1; animation: flow 1s linear infinite; }
+
+  /* Alarm action list */
+  .alarm-panel { animation: alarm-pulse 1.2s ease-in-out infinite; }
 }
 
 @keyframes blink { 50% { opacity: 0.3; } }
 @keyframes drop { from { transform: translateY(0); opacity: 1; } to { transform: translateY(9px); opacity: 0.2; } }
 @keyframes flow { to { stroke-dashoffset: -16; } }
+@keyframes alarm-pulse { 50% { box-shadow: 0 0 0 6px rgba(185, 28, 28, 0.25); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .led-red, .tone-alarm .pump-screen-header, .drip-drop, .drip-flow.is-running { animation: none; }
+  .led-red, .tone-alarm .pump-screen-header, .drip-drop, .drip-flow.is-running, .alarm-panel { animation: none; }
 }

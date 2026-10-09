@@ -117,8 +117,9 @@ function pressWhileEditing(s: PumpState, button: PumpButton): PressResult {
 }
 
 export function pressButton(s: PumpState, button: PumpButton): PressResult {
+  // MUTE toggles the alarm sound: a second press brings it back.
   if (button === 'MUTE') {
-    return result(s.alarm ? { ...s, alarm: { ...s.alarm, muted: true } } : s);
+    return result(s.alarm ? { ...s, alarm: { ...s.alarm, muted: !s.alarm.muted } } : s);
   }
   switch (s.status) {
     case 'off':
